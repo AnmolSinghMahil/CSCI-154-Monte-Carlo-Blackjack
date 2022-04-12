@@ -17,14 +17,17 @@ def reshuffle():
     for suit in suits:
         for number in numbers:
             deck.append(suit+number)
-def checkforAce(player):
+
+
+def checkforAce(player,playerTotal):
     for i in range(len(player)):
-        if (player[i] == 1):
-            return False
-        else:
+        if (player[i] == '♠1'or player[i] == '♣1' or player[i] == '♡1' or player[i] == '♢1'):
             return True
+        else:
+            continue
+    return False
          
-for i in range(6):  
+for i in range(10):  
     #for version of the game where there is only 1 deck
     #7 1 6 -> 7 10
     deck = []
@@ -36,7 +39,7 @@ for i in range(6):
     def initialDeal(param) :
         while len(param) < 2:
             card = random.choice(deck)
-            deck.remove(card)
+            # deck.remove(card)
             param.append(card)
         return param
     player = initialDeal(player)
@@ -44,13 +47,11 @@ for i in range(6):
     #deal another card if total is less than 17
     def dealAnotherCard(param):
         card = random.choice(deck)
-        deck.remove(card)
+        # deck.remove(card)
         param.append(card)
         return param
     def convertToCorrectValue(player,hold,a):
         for i in range(0,len(hold)):
-           
-           
             if(hold[i] == 1 and ((a+11) <= 21)):
                 hold[i] = 11
             # elif(hold[i] > 10 and player[i] == '♠1'or player[i] == '♣1' or player[i] == '♡1' or player[i] == '♢1'):
@@ -77,25 +78,45 @@ for i in range(6):
         houseTotal.append(int((house[-1][1:])))
     
     #fix when both player and house get more than 21 total for ex: hTotal:22 pTotal: 22, it should not be a draw, house should win
-    def winner(pTotal,hTotal,lossCount,drawCount,winCount):
-        if(pTotal  == hTotal):
-            if(pTotal >21 and hTotal > 21):
-                print("house wins")
-                lossCount = lossCount+1
-            print("Its a draw")
-            drawCount = drawCount+1
-        elif(pTotal < hTotal and hTotal <= 21):
+    def winner(pTotal,hTotal):
+        global lossCount,drawCount,winCount
+        if(pTotal > hTotal and pTotal <=21):
+            winCount = winCount+1
+            print("Player wins")
+        elif(pTotal > hTotal and pTotal >21):
             print("House wins")
             lossCount = lossCount+1
-        elif(hTotal <  pTotal and pTotal <=21):
-            print("Player wins")
-            winCount = winCount+1
-        elif(pTotal > 21 and hTotal >21):
-            print("house wins")
+        elif(hTotal > pTotal and hTotal <=21):
             lossCount = lossCount+1
-        return 
-            
-    print("Cards of player:",player, "----  Cards of house:",house)
+            print("House wins")
+        #ex Player: 18 House: 23
+        elif(hTotal > pTotal and hTotal >21):
+            winCount = winCount+1
+            print("Player wins")
+        elif(pTotal == hTotal and pTotal <= 21):
+            drawCount= drawCount+1
+            print("Its a draw")
+        else:
+            lossCount = lossCount+1
+            print("House wins")
+        return winCount,lossCount,drawCount    
+        # if(pTotal  == hTotal):
+        #     if(pTotal >21 and hTotal > 21):
+        #         print("house wins")
+        #         lossCount = lossCount+1
+        #     print("Its a draw")
+        #     drawCount = drawCount+1
+        # elif(pTotal < hTotal and hTotal <= 21):
+        #     print("House wins")
+        #     lossCount = lossCount+1
+        # elif(hTotal <  pTotal and pTotal <=21):
+        #     print("Player wins")
+        #     winCount = winCount+1
+        # elif(pTotal > 21 and hTotal >21):
+        #     print("house wins")
+        #     lossCount = lossCount+1
+        # return lossCount,winCount,drawCount
+    # print("Cards of player:",player, "----  Cards of house:",house)
     
     #checks how many elements/cards are in player list and takes the first 2 strings
     #and puts them in playerTotal/houseTotal list
@@ -110,27 +131,69 @@ for i in range(6):
         
     hTotal=0
     pTotal=0
-    correctedValueP = convertToCorrectValue(player,playerTotal,pTotal);
-    correctedValueH = convertToCorrectValue(house,houseTotal,hTotal);
+    playerTotal = convertToCorrectValue(player,playerTotal,pTotal);
+    houseTotal = convertToCorrectValue(house,houseTotal,hTotal);
     
-    pTotal = total(correctedValueP)
-    hTotal = total(correctedValueH)
+    pTotal = total(playerTotal)
+    hTotal = total(houseTotal)
+    def checkForEleven(playerTotal,pTotal):
+        if(pTotal > 21):
+            for i in range(len(playerTotal)):
+                if(playerTotal[i] == 11):
+                    playerTotal[i] = 1
+               
+    #####Policy 5 while(pTotal <15)          
+    #####Policy 4 call the dealanothercard, appendingNewCard,convertToCorrectValue,pTotal once
+    # dealAnotherCard(player)
+    # appendingNewCard(playerTotal)
+    # convertToCorrectValue(player,playerTotal,pTotal)
+    # pTotal = total(playerTotal)
+    #####Policy 3 get rid of the while loop
+    #####Policy 2 for player
+    # if(checkforAce(player,playerTotal)):      
+    #     while(pTotal < 21 and checkforAce(player,playerTotal)):
+    #         print("going for 21")
+    #         dealAnotherCard(player)
+    #         appendingNewCard(playerTotal)
+    #         convertToCorrectValue(player,playerTotal,pTotal)
+    #         pTotal = total(playerTotal)
+    #         checkForEleven(playerTotal,pTotal)
+    #         pTotal = total(playerTotal)
+    # else:
+    #     while(pTotal < 17):
+    #         print("going for 17")
+    #         dealAnotherCard(player)
+    #         appendingNewCard(playerTotal)
+    #         convertToCorrectValue(player,playerTotal,pTotal)
+    #         pTotal = total(playerTotal)
+    #         checkForEleven(playerTotal,pTotal)
+    #         pTotal = total(playerTotal)
+   ####Policy 1 for player
     while(pTotal < 17):
         dealAnotherCard(player)
         appendingNewCard(playerTotal)
         convertToCorrectValue(player,playerTotal,pTotal)
-        pTotal = total(correctedValueP)
+        pTotal = total(playerTotal)
+        checkForEleven(playerTotal,pTotal)
+        pTotal = total(playerTotal)
+        
     #dealer takes the cards until the total is 17 or more(soft or hard)
     while(hTotal < 17):
         dealAnotherCard(house)
         appendingNewCardH(houseTotal)
         convertToCorrectValue(house,houseTotal,hTotal)
-        hTotal = total(correctedValueH)
-        
+        hTotal = total(houseTotal)
+        checkForEleven(houseTotal,hTotal)
+        hTotal = total(houseTotal)
+    
+    
     print( "Player variable: ",player, ' ' , house)
+    # print(checkforAce(player)) 
     print("playerTotal Variables: ",playerTotal, "   ", houseTotal)
     print("Player total is: ", pTotal, " House total is: ", hTotal)
-    winner(pTotal,hTotal,lossCount,drawCount,winCount)
+    winner(pTotal,hTotal)
     # winner(pTotal)```
 print(len(deck))
-print(lossCount,winCount,drawCount)
+print("Losses: ",lossCount)
+print("Draws: ",drawCount)
+print("Wins: ",winCount)
